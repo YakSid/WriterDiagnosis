@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QListWidget>
+#include "ccustomlistwidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -23,7 +24,7 @@ public slots:
 private:
     Ui::MainWindow *ui;
 
-    QList<QListWidget *> m_listWidgets;
+    QList<CCustomListWidget *> m_listWidgets;
 };
 
 #endif // MAINWINDOW_H

@@ -18,7 +18,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QGroupBox" name="groupBox">
+       <widget class="QGroupBox" name="gb_main">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -27,34 +27,35 @@
         <property name="title">
          <string>Основное заболевание:</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <item>
-          <widget class="QListWidget" name="lw_mainDis"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pb_addMain">
-           <property name="minimumSize">
-            <size>
-             <width>51</width>
-             <height>101</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>51</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="pb_addMain">
+         <property name="geometry">
+          <rect>
+           <x>385</x>
+           <y>31</y>
+           <width>51</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>51</width>
+           <height>101</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>51</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_6">
+       <widget class="QGroupBox" name="gb_back">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -63,34 +64,35 @@
         <property name="title">
          <string>Фоновое заболевание:</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <widget class="QListWidget" name="lw_backgroundDis"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pb_addBack">
-           <property name="minimumSize">
-            <size>
-             <width>51</width>
-             <height>101</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>51</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="pb_addBack">
+         <property name="geometry">
+          <rect>
+           <x>385</x>
+           <y>31</y>
+           <width>51</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>51</width>
+           <height>101</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>51</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_7">
+       <widget class="QGroupBox" name="gb_comp">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -99,34 +101,35 @@
         <property name="title">
          <string>Осложнения основного заболевания:</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <widget class="QListWidget" name="lw_complications"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pb_addComp">
-           <property name="minimumSize">
-            <size>
-             <width>51</width>
-             <height>101</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>51</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="pb_addComp">
+         <property name="geometry">
+          <rect>
+           <x>385</x>
+           <y>31</y>
+           <width>51</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>51</width>
+           <height>101</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>51</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
-       <widget class="QGroupBox" name="groupBox_8">
+       <widget class="QGroupBox" name="gb_acc">
         <property name="font">
          <font>
           <pointsize>10</pointsize>
@@ -135,30 +138,31 @@
         <property name="title">
          <string>Сопутствующие заболевания:</string>
         </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <widget class="QListWidget" name="lw_accompanying"/>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pb_addAcc">
-           <property name="minimumSize">
-            <size>
-             <width>51</width>
-             <height>101</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>51</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="pb_addAcc">
+         <property name="geometry">
+          <rect>
+           <x>385</x>
+           <y>31</y>
+           <width>51</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>51</width>
+           <height>101</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>51</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>+</string>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -169,7 +173,7 @@
            <widget class="QLabel" name="label">
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
              </font>
             </property>
             <property name="text">
@@ -187,7 +191,9 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>10</pointsize>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
              </font>
             </property>
            </widget>
@@ -238,6 +244,104 @@
       <property name="title">
        <string>Настройки выбранного фрагмента</string>
       </property>
+      <widget class="QCheckBox" name="checkBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>38</y>
+         <width>251</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Любая позиция в блоке</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>70</y>
+         <width>291</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Может стоять перед словом слева</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>100</y>
+         <width>291</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Может стоять после слова справа</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>130</y>
+         <width>121</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Строго после:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="comboBox">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>130</y>
+         <width>161</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_5">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>160</y>
+         <width>111</width>
+         <height>19</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>После:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="comboBox_2">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>160</y>
+         <width>161</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>250</y>
+         <width>261</width>
+         <height>201</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Можно сделать таблицу со всеми&lt;/p&gt;&lt;p&gt;возможными вариантами и там&lt;/p&gt;&lt;p&gt;проставлять галочки, какие&lt;/p&gt;&lt;p&gt;варианты могут быть, а какие&lt;/p&gt;&lt;p&gt;нет&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>

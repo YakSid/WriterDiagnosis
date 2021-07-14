@@ -25,11 +25,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        ccustomlistwidget.cpp \
         clwitem.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
+        ccustomlistwidget.h \
         clwitem.h \
         mainwindow.h
 
