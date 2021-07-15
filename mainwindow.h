@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QListWidget>
 #include "ccustomlistwidget.h"
+#include "csavingaccepter.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,10 +22,14 @@ public:
 public slots:
     void addWord();
 
+private slots:
+    void on_pb_saveTest_clicked();
+
 private:
     Ui::MainWindow *ui;
 
     QList<CCustomListWidget *> m_listWidgets;
+    CSavingAccepter *m_savingAccepter;
 };
 
 #endif // MAINWINDOW_H

@@ -25,17 +25,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        ccrypter.cpp \
         ccustomlistwidget.cpp \
+        cjsonmanager.cpp \
         clwitem.cpp \
+        csavingaccepter.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
+        ccrypter.h \
         ccustomlistwidget.h \
+        cjsonmanager.h \
         clwitem.h \
+        csavingaccepter.h \
+        cstructs.h \
         mainwindow.h
 
 FORMS += \
+        csavingaccepter.ui \
         mainwindow.ui
 
 # Default rules for deployment.

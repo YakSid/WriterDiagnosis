@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include "cjsonmanager.h"
 
 const auto PROPERTY_BLOCK_TYPE = QByteArrayLiteral("blockType");
 
@@ -10,6 +11,8 @@ const auto PROPERTY_BLOCK_TYPE = QByteArrayLiteral("blockType");
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    m_savingAccepter = new CSavingAccepter(this);
 
     //Кнопки
     QList<QPushButton *> pushButtons;
@@ -73,6 +76,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
+    delete m_savingAccepter;
     delete ui;
 }
 
@@ -87,4 +91,10 @@ void MainWindow::addWord()
     auto item = new CLWItem();
     lw->addItem(item);
     lw->editItem(item);
+}
+
+void MainWindow::on_pb_saveTest_clicked()
+{
+    m_savingAccepter->setModal(true);
+    m_savingAccepter->exec();
 }
