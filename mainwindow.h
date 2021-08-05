@@ -23,13 +23,17 @@ public slots:
     void addWord();
 
 private slots:
-    void on_pb_saveTest_clicked();
+    void on_pb_further_clicked();
+
+    void on_pb_saveDiagnosis_clicked();
 
 private:
     Ui::MainWindow *ui;
 
     QList<CCustomListWidget *> m_listWidgets;
     CSavingAccepter *m_savingAccepter;
+    //! Список сохранённых диагнозов
+    QList<QList<QStringList>> *m_savedDiagnosis { nullptr };
 };
 
 #endif // MAINWINDOW_H
