@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QDebug>
+#include "cstructs.h"
 
 CSavingAccepter::CSavingAccepter(QList<QList<QStringList>> *savedDiagnosis, QWidget *parent)
     : QDialog(parent), ui(new Ui::CSavingAccepter)
@@ -223,6 +224,7 @@ void CSavingAccepter::on_pb_deleteDiagnosis_clicked()
     m_savedDiagnosis->removeAt(m_currentDiagnosisId);
 
     if (m_savedDiagnosis->count() == 0) {
+        emit s_lastDiagnosisDeleted();
         close();
         return;
     } else if (m_currentDiagnosisId >= m_savedDiagnosis->count() - 1) {
@@ -246,5 +248,6 @@ void CSavingAccepter::on_pb_back_clicked()
 
 void CSavingAccepter::on_pb_save_clicked()
 {
-    // TODO: сохранение и завершение или начало заново
+    emit s_startSave();
+    close();
 }

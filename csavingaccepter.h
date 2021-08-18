@@ -31,6 +31,12 @@ private slots:
     void on_pb_back_clicked();
     void on_pb_save_clicked();
 
+signals:
+    //! Удалены все вариации диагноза
+    void s_lastDiagnosisDeleted();
+    //! Все существующие вариации диагноза одобрены, нужно начать сохранение в файл
+    void s_startSave();
+
 private:
     //Комбинаторика
     //! Проверяет есть ли ещё комбинация и если есть, то преобразует в неё

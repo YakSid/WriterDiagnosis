@@ -2,7 +2,7 @@
 #define CSTRUCTS_H
 #include <QStringList>
 
-struct SBlock {
+struct SWord {
     QString text;
     QList<qint8> availableDisBlock;
     qint8 currentDisBlock { -1 };
@@ -15,12 +15,12 @@ struct SBlock {
 };
 
 struct SExample {
-    QList<SBlock> blocks;
+    QList<SWord *> words;
 
     bool isCorrect()
     {
-        for (auto block : blocks) {
-            if (!block.isCorrect())
+        for (auto word : words) {
+            if (!word->isCorrect())
                 return false;
         }
         return true;

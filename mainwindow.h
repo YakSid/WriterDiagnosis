@@ -5,6 +5,7 @@
 #include <QListWidget>
 #include "ccustomlistwidget.h"
 #include "csavingaccepter.h"
+#include "cstructs.h"
 
 namespace Ui {
 class MainWindow;
@@ -21,6 +22,9 @@ public:
 
 public slots:
     void addWord();
+    void slotLastDiagnosisDeleted();
+    //! Начать сохранение вариаций диагноза в файл
+    void startSave();
 
 private slots:
     void on_pb_further_clicked();
@@ -34,6 +38,8 @@ private:
     CSavingAccepter *m_savingAccepter;
     //! Список сохранённых диагнозов
     QList<QList<QStringList>> *m_savedDiagnosis { nullptr };
+    //! Весь текущий тест - полный список слов и их возможных позиций к сохранению
+    SExample *m_example;
 };
 
 #endif // MAINWINDOW_H

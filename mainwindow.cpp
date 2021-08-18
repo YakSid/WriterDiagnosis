@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QDebug>
+#include <QDateTime>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "cjsonmanager.h"
 
 const auto PROPERTY_BLOCK_TYPE = QByteArrayLiteral("blockType");
@@ -14,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
     m_savedDiagnosis = new QList<QList<QStringList>>;
     m_savingAccepter = new CSavingAccepter(m_savedDiagnosis, this);
+    connect(m_savingAccepter, &CSavingAccepter::s_lastDiagnosisDeleted, this, &MainWindow::slotLastDiagnosisDeleted);
+    connect(m_savingAccepter, &CSavingAccepter::s_startSave, this, &MainWindow::startSave);
 
     //Кнопки
     QList<QPushButton *> pushButtons;
@@ -77,6 +82,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
+    qDeleteAll(m_example->words);
+    m_example->words.clear();
+    delete m_example;
+
     m_savedDiagnosis->clear();
     delete m_savedDiagnosis;
     delete m_savingAccepter;
@@ -94,6 +103,65 @@ void MainWindow::addWord()
     auto item = new CLWItem();
     lw->addItem(item);
     lw->editItem(item);
+}
+
+void MainWindow::slotLastDiagnosisDeleted()
+{
+    ui->pb_further->setEnabled(false);
+}
+
+// TODO: сохранение и завершение или начало заново
+// TODO: редактирование или создание нового
+
+void MainWindow::startSave()
+{
+    QString saveFileName = QFileDialog::getSaveFileName(this, tr("Сохранить проект"), QString(), tr("JSON (*.json)"));
+    if (saveFileName.isEmpty()) {
+        QMessageBox msg;
+        msg.setText("Не выбран корректный путь сохранения");
+        msg.exec();
+        return;
+    }
+
+    m_example = new SExample();
+
+    //Составляем словарь id : word, пройдясь по всем словам в первой вариации
+    QMap<qint32, QString> vocabulary;
+    qint32 id = 0;
+    for (auto disBlock : m_savedDiagnosis->first()) {
+        for (auto word : disBlock) {
+            vocabulary.insert(id, word);
+            id++;
+        }
+    }
+
+    //Берём каждое слово из словаря и создаём SWord записывая в него все возможные позиции слова проходясь по всем
+    //вариациям диагноза
+    for (auto it = vocabulary.begin(); it != vocabulary.end(); ++it) {
+        auto word = new SWord();
+        word->text = it.value();
+        //Поиск слова по вариациям и запись позиции в SWord
+        for (auto diagnosis : *m_savedDiagnosis) {
+            qint8 currentDisBlock = 0;
+            for (auto disBlock : diagnosis) {
+                auto index = static_cast<qint8>(disBlock.indexOf(word->text));
+                if (index != -1) {
+                    if (!word->availableDisBlock.contains(currentDisBlock))
+                        word->availableDisBlock.append(currentDisBlock);
+                    if (!word->availablePositions.contains(index))
+                        word->availablePositions.append(index);
+                    break;
+                } else {
+                    currentDisBlock++;
+                }
+            }
+        }
+        m_example->words.append(word);
+    }
+
+    CJsonManager::saveToFile(saveFileName, m_example);
+
+    // TODO: Оформить переход на главный экран
 }
 
 void MainWindow::on_pb_further_clicked()
@@ -135,4 +203,9 @@ void MainWindow::on_pb_saveDiagnosis_clicked()
 
     m_savedDiagnosis->append(diagnosis);
     ui->lb_diagnosisCount->setText("Сохранено вариаций диагноза: " + QString::number(m_savedDiagnosis->count()));
+
+    if (!ui->pb_further->isEnabled())
+        ui->pb_further->setEnabled(true);
 }
+
+// NOTE: не нужно изменять слова после сохранения диагнозов - или учесть это
