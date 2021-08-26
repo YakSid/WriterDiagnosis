@@ -29,6 +29,7 @@ SOURCES += \
         ccustomlistwidget.cpp \
         cjsonmanager.cpp \
         clwitem.cpp \
+        cmenu.cpp \
         csavingaccepter.cpp \
         main.cpp \
         mainwindow.cpp
@@ -38,11 +39,13 @@ HEADERS += \
         ccustomlistwidget.h \
         cjsonmanager.h \
         clwitem.h \
+        cmenu.h \
         csavingaccepter.h \
         cstructs.h \
         mainwindow.h
 
 FORMS += \
+        cmenu.ui \
         csavingaccepter.ui \
         mainwindow.ui
 

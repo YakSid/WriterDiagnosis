@@ -23,6 +23,8 @@ public:
 
     //! Подготовить экран заполнив его диагнозами
     void prepare();
+    //! Обнулить переменные для начала работы с другим проектом
+    void clearVariables();
 
 private slots:
     void on_pb_prevDiagnosis_clicked();

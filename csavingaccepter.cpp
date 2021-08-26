@@ -28,6 +28,11 @@ void CSavingAccepter::prepare()
                                     + QString::number(m_savedDiagnosis->count()));
 }
 
+void CSavingAccepter::clearVariables()
+{
+    m_currentDiagnosisId = 0;
+}
+
 /*void CSavingAccepter::fillWords(const QList<QStringList> &allWords)
 {
     // К старой версии: Учесть если 0 в lw было. Переделать с энумом счётчик lw.

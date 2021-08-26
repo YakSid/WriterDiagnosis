@@ -4,6 +4,7 @@
 #include <QDateTime>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTimer>
 #include "cjsonmanager.h"
 
 const auto PROPERTY_BLOCK_TYPE = QByteArrayLiteral("blockType");
@@ -78,13 +79,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         }
     }*/
     //
+
+    m_menu = new CMenu();
+    m_menu->setModal(true);
+    m_menu->exec();
+    _menuClosed();
 }
 
 MainWindow::~MainWindow()
 {
-    qDeleteAll(m_example->words);
-    m_example->words.clear();
-    delete m_example;
+    if (m_example) {
+        qDeleteAll(m_example->words);
+        m_example->words.clear();
+        delete m_example;
+    }
 
     m_savedDiagnosis->clear();
     delete m_savedDiagnosis;
@@ -109,9 +117,6 @@ void MainWindow::slotLastDiagnosisDeleted()
 {
     ui->pb_further->setEnabled(false);
 }
-
-// TODO: сохранение и завершение или начало заново
-// TODO: редактирование или создание нового
 
 void MainWindow::startSave()
 {
@@ -161,7 +166,22 @@ void MainWindow::startSave()
 
     CJsonManager::saveToFile(saveFileName, m_example);
 
-    // TODO: Оформить переход на главный экран
+    ui->pb_further->setEnabled(false);
+    m_savedDiagnosis->clear();
+    if (m_example) {
+        qDeleteAll(m_example->words);
+        m_example->words.clear();
+        delete m_example;
+    }
+    m_savingAccepter->clearVariables();
+    m_example = nullptr;
+    for (auto lw : m_listWidgets) {
+        lw->clear();
+    }
+    ui->lb_diagnosisCount->setText("Сохранено вариаций диагноза: " + QString::number(m_savedDiagnosis->count()));
+    m_savingAccepter->close();
+    m_menu->exec();
+    _menuClosed();
 }
 
 void MainWindow::on_pb_further_clicked()
@@ -208,4 +228,60 @@ void MainWindow::on_pb_saveDiagnosis_clicked()
         ui->pb_further->setEnabled(true);
 }
 
-// NOTE: не нужно изменять слова после сохранения диагнозов - или учесть это
+void MainWindow::closeApp()
+{
+    qApp->quit();
+}
+
+void MainWindow::_menuClosed()
+{
+    switch (m_menu->getMode()) {
+    case 1:
+        // Создание нового - ничего дополнительно делать не надо
+        break;
+    case 2: {
+        // Загрузка старого
+        QString openFileName = QFileDialog::getOpenFileName(this, tr("Открыть проект"), QString(), tr("JSON (*.json)"));
+        if (openFileName.isEmpty()) {
+            QMessageBox msg;
+            msg.setText("Не выбран корректный путь к файлу, открыт новый проект");
+            msg.exec();
+        } else {
+            auto example = CJsonManager::loadFromFile(openFileName);
+            m_example = new SExample(example);
+            // TODO: СЕЙЧАС
+            _prepareSavedDiagnosisFromLoadedFile(&example);
+            _setWordsInLws(&example);
+        }
+    } break;
+    default:
+        // NOTE: плохой костыль, нужно переделать
+        QTimer::singleShot(50, this, &MainWindow::closeApp);
+    }
+}
+
+void MainWindow::_prepareSavedDiagnosisFromLoadedFile(const SExample *example)
+{
+    // TODO: СЕЙЧАС заполнить m_savedDiagnosis проверив все ли варианты правильно указались (количество, порядок слов)
+    //наверное с комбинациями надо отработать
+
+    // 1. Получить список всех возможных комбинаций
+    QList<qint32> variationsForWord;
+    for (auto word : example->words) {
+        variationsForWord.append(word->availablePositions.count());
+    }
+    qDebug() << variationsForWord;
+    /// Возможный алгоритм:
+    /// Расставить слова по первой вариации -> если для первого слова есть альтернативы, то поставить на вторую позицию
+    /// -> повторять по всем позициям для каждого слова
+    // 2. Для каждой комбинации расставить по LW и сохранить эту комбинацию
+}
+
+void MainWindow::_setWordsInLws(const SExample *example)
+{
+    for (auto word : example->words) {
+        m_listWidgets.at(word->availableDisBlock.first())->addItem(word->text);
+    }
+}
+
+// TODO: справка: не нужно изменять слова после сохранения диагнозов - или учесть это
