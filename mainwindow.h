@@ -23,6 +23,8 @@ public:
 
 public slots:
     void addWord();
+    //! Создаём в указанном lw т.к. слот активируется через специальный хоткей
+    void addWordInBlock(EBlockType block);
     void slotLastDiagnosisDeleted();
     //! Начать сохранение вариаций диагноза в файл
     void startSave();
@@ -32,6 +34,7 @@ private slots:
     void on_pb_saveDiagnosis_clicked();
     void closeApp();
     void onLwItemTextChanged(qint32 id, QString newText);
+    void onHotkeyActivated();
 
 private:
     void _menuClosed();
@@ -54,6 +57,8 @@ private:
     SExample *m_example { nullptr };
     QMap<qint32, QString> *m_dictionary { nullptr };
     QStringList *m_combinations { nullptr };
+    //! Хоткеи
+    QList<QShortcut *> m_hotkeys;
 };
 
 #endif // MAINWINDOW_H

@@ -5,11 +5,11 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
+#include <QShortcut>
 #include "cjsonmanager.h"
 
 const auto PROPERTY_BLOCK_TYPE = QByteArrayLiteral("blockType");
 
-// TODO: на будущее: сделать хоткей для добавления фразы, например "+" по координатам курсора
 // TODO: на будущее: сделать иконку программы и иконку для действия удаления в контекстном меню
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -49,6 +49,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
     for (auto lw : m_listWidgets) {
         connect(lw, &CCustomListWidget::s_textChanged, this, &MainWindow::onLwItemTextChanged);
     }
+
+    //Хоткеи
+    auto f1 = new QShortcut(this);
+    f1->setKey(Qt::Key_F1);
+    auto f2 = new QShortcut(this);
+    f2->setKey(Qt::Key_F2);
+    auto f3 = new QShortcut(this);
+    f3->setKey(Qt::Key_F3);
+    auto f4 = new QShortcut(this);
+    f4->setKey(Qt::Key_F4);
+    m_hotkeys.append({ f1, f2, f3, f4 });
+    for (auto hotkey : m_hotkeys) {
+        connect(hotkey, &QShortcut::activated, this, &MainWindow::onHotkeyActivated);
+    }
+
     // TODO: при закрытии проверить m_dictionary на наличие слов, которые нигде не используются и удалить их?
 
     m_menu = new CMenu();
@@ -59,12 +74,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 
 MainWindow::~MainWindow()
 {
+    qDeleteAll(m_hotkeys);
+
     if (m_example) {
         qDeleteAll(m_example->words);
         m_example->words.clear();
         delete m_example;
     }
 
+    delete m_dictionary;
     m_combinations->clear();
     delete m_combinations;
     delete m_savingAccepter;
@@ -78,6 +96,11 @@ void MainWindow::addWord()
     if (pb)
         block = EBlockType(pb->property(PROPERTY_BLOCK_TYPE).toInt());
 
+    addWordInBlock(block);
+}
+
+void MainWindow::addWordInBlock(MainWindow::EBlockType block)
+{
     auto lw = m_listWidgets.at(qint32(block));
     auto id = _makeMinId();
     auto item = new CLWItem(id);
@@ -204,6 +227,21 @@ void MainWindow::onLwItemTextChanged(qint32 id, QString newText)
 {
     auto it = m_dictionary->find(id);
     it.value() = newText;
+}
+
+void MainWindow::onHotkeyActivated()
+{
+    auto hotkey = static_cast<QShortcut *>(sender());
+
+    if (hotkey->key() == Qt::Key_F1) {
+        addWordInBlock(EBlockType::main);
+    } else if (hotkey->key() == Qt::Key_F2) {
+        addWordInBlock(EBlockType::back);
+    } else if (hotkey->key() == Qt::Key_F3) {
+        addWordInBlock(EBlockType::comp);
+    } else if (hotkey->key() == Qt::Key_F4) {
+        addWordInBlock(EBlockType::acc);
+    }
 }
 
 void MainWindow::_menuClosed()
