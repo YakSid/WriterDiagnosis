@@ -16,8 +16,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
 {
     ui->setupUi(this);
 
-    m_savedDiagnosis = new QList<QList<QStringList>>;
-    m_savingAccepter = new CSavingAccepter(m_savedDiagnosis, this);
+    m_dictionary = new QMap<qint32, QString>;
+    m_combinations = new QStringList;
+    m_savingAccepter = new CSavingAccepter(m_combinations, m_dictionary, this);
     connect(m_savingAccepter, &CSavingAccepter::s_lastDiagnosisDeleted, this, &MainWindow::slotLastDiagnosisDeleted);
     connect(m_savingAccepter, &CSavingAccepter::s_startSave, this, &MainWindow::startSave);
 
@@ -44,41 +45,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWi
         m_listWidgets.append(lw);
     }
 
-    //
-    /*QStringList words = {
-        "Ишемическая болезнь сердца",
-        "Крупноочаговый кардиосклероз нижней стенки левого желудочка",
-        "Стенозирующий атеросклероз коронарных артерий (3 степень 4 стадия стеноз до 50%)",
-        "Гипертоническая болезнь: гипертрофия миокарда преимущественно левого желудочка (масса сердца – 570 г, толщина "
-        "миокарда левого желудочка – 1,9 см, правого – 0,3 см, межжелудочковой перегородки – 1,9 см)",
-        "Сахарный диабет 2 типа",
-        "Диабетическая ангиопатия",
-        "Диабетическая нефропатия (см. также клинические данные)",
-        "Ожирение",
-        "Застойная сердечная недостаточность",
-        "«Мускатная» печень",
-        "Цианотическая индурация селезенки и почек",
-        "Двусторонний гидроторакс (1400 мл)",
-        "Гидроперикард (200 мл)",
-        "Асцит (8000 мл)",
-        "Отёки подкожной клетчатки туловища и конечностей",
-        "Дистрофические изменения внутренних органов и острое венозное полнокровие",
-        "Отёк лёгких",
-        "Атеросклероз аорты (3 степень, 4 стадия)",
-        "Хронический панкреатит, ремиссия",
-    };
-    for (int i = 0; i < words.count(); i++) {
-        if (i < 3) {
-            ui->lw_mainDis->addItem(words.at(i));
-        } else if (i < 8) {
-            ui->lw_backgroundDis->addItem(words.at(i));
-        } else if (i < 17) {
-            ui->lw_complications->addItem(words.at(i));
-        } else {
-            ui->lw_accompanying->addItem(words.at(i));
-        }
-    }*/
-    //
+    //ЛистВиджеты
+    for (auto lw : m_listWidgets) {
+        connect(lw, &CCustomListWidget::s_textChanged, this, &MainWindow::onLwItemTextChanged);
+    }
+    // TODO: при закрытии проверить m_dictionary на наличие слов, которые нигде не используются и удалить их?
 
     m_menu = new CMenu();
     m_menu->setModal(true);
@@ -94,8 +65,8 @@ MainWindow::~MainWindow()
         delete m_example;
     }
 
-    m_savedDiagnosis->clear();
-    delete m_savedDiagnosis;
+    m_combinations->clear();
+    delete m_combinations;
     delete m_savingAccepter;
     delete ui;
 }
@@ -108,9 +79,11 @@ void MainWindow::addWord()
         block = EBlockType(pb->property(PROPERTY_BLOCK_TYPE).toInt());
 
     auto lw = m_listWidgets.at(qint32(block));
-    auto item = new CLWItem();
+    auto id = _makeMinId();
+    auto item = new CLWItem(id);
     lw->addItem(item);
     lw->editItem(item);
+    m_dictionary->insert(id, item->text());
 }
 
 void MainWindow::slotLastDiagnosisDeleted()
@@ -129,45 +102,41 @@ void MainWindow::startSave()
     }
 
     m_example = new SExample();
+    m_example->combinations = *m_combinations;
 
-    //Составляем словарь id : word, пройдясь по всем словам в первой вариации
-    QMap<qint32, QString> vocabulary;
-    qint32 id = 0;
-    for (auto disBlock : m_savedDiagnosis->first()) {
-        for (auto word : disBlock) {
-            vocabulary.insert(id, word);
-            id++;
-        }
-    }
-
-    //Берём каждое слово из словаря и создаём SWord записывая в него все возможные позиции слова проходясь по всем
-    //вариациям диагноза
-    for (auto it = vocabulary.begin(); it != vocabulary.end(); ++it) {
+    //Берём каждое слово из словаря и создаём SWord
+    for (auto it = m_dictionary->begin(); it != m_dictionary->end(); ++it) {
+        //Записываем в него все возможные позиции слова проходясь по всем вариациям диагноза
         auto word = new SWord();
+        word->id = it.key();
         word->text = it.value();
-        //Поиск слова по вариациям и запись позиции в SWord
-        for (auto diagnosis : *m_savedDiagnosis) {
-            qint8 currentDisBlock = 0;
-            for (auto disBlock : diagnosis) {
-                auto index = static_cast<qint8>(disBlock.indexOf(word->text));
-                if (index != -1) {
-                    if (!word->availableDisBlock.contains(currentDisBlock))
-                        word->availableDisBlock.append(currentDisBlock);
-                    if (!word->availablePositions.contains(index))
-                        word->availablePositions.append(index);
+        for (auto comb : *m_combinations) {
+            //Ищем сколько разделителей блоко перед нашим ключом слова - определяем disBlock
+            auto pos = comb.indexOf(QString::number(it.key()));
+            qint8 currentDisBlock = static_cast<qint8>(comb.left(pos).count(BLOCK_SEPARATOR));
+            //Ищем позицию в блоке
+            qint8 currentPos = -1;
+            QStringList separeteds = comb.split(BLOCK_SEPARATOR);
+            for (auto str : separeteds) {
+                if (str.contains(it.key())) {
+                    auto localPos = str.indexOf(QString::number(it.key()));
+                    currentPos = static_cast<qint8>(str.left(localPos).count(SEPARATOR));
                     break;
-                } else {
-                    currentDisBlock++;
                 }
             }
+            if (!word->availableDisBlock.contains(currentDisBlock))
+                word->availableDisBlock.append(currentDisBlock);
+            if (!word->availablePositions.contains(currentPos) && currentPos != -1)
+                word->availableDisBlock.append(currentPos);
         }
+
         m_example->words.append(word);
     }
 
     CJsonManager::saveToFile(saveFileName, m_example);
 
     ui->pb_further->setEnabled(false);
-    m_savedDiagnosis->clear();
+    m_combinations->clear();
     if (m_example) {
         qDeleteAll(m_example->words);
         m_example->words.clear();
@@ -178,7 +147,7 @@ void MainWindow::startSave()
     for (auto lw : m_listWidgets) {
         lw->clear();
     }
-    ui->lb_diagnosisCount->setText("Сохранено вариаций диагноза: " + QString::number(m_savedDiagnosis->count()));
+    _updateDiadnosisCountLabel();
     m_savingAccepter->close();
     m_menu->exec();
     _menuClosed();
@@ -190,11 +159,12 @@ void MainWindow::on_pb_further_clicked()
     m_savingAccepter->setModal(true);
     m_savingAccepter->exec();
 
-    ui->lb_diagnosisCount->setText("Сохранено вариаций диагноза: " + QString::number(m_savedDiagnosis->count()));
+    _updateDiadnosisCountLabel();
 }
 
 void MainWindow::on_pb_saveDiagnosis_clicked()
 {
+    // WARNING: пример удалить
     QList<QStringList> allWords = {
         { "Ишемическая болезнь сердца", "Крупноочаговый кардиосклероз нижней стенки левого желудочка",
           "Стенозирующий атеросклероз коронарных артерий (3 степень 4 стадия стеноз до 50%)" },
@@ -209,20 +179,17 @@ void MainWindow::on_pb_saveDiagnosis_clicked()
         { "Атеросклероз аорты (3 степень, 4 стадия)", "Хронический панкреатит, ремиссия" }
     };
 
-    QList<QStringList> diagnosis;
+    QString diagnosis;
     for (auto lw : m_listWidgets) {
-        auto words = new QStringList;
         for (auto i = 0; i < lw->count(); i++) {
-            words->append(lw->item(i)->text());
+            auto clwItem = static_cast<CLWItem *>(lw->item(i));
+            diagnosis.append(QString::number(clwItem->getId()) + SEPARATOR);
         }
-        diagnosis.append(*words);
+        diagnosis.append(BLOCK_SEPARATOR);
     }
+    m_combinations->append(diagnosis);
 
-    // WARNING: подмена
-    diagnosis = allWords;
-
-    m_savedDiagnosis->append(diagnosis);
-    ui->lb_diagnosisCount->setText("Сохранено вариаций диагноза: " + QString::number(m_savedDiagnosis->count()));
+    _updateDiadnosisCountLabel();
 
     if (!ui->pb_further->isEnabled())
         ui->pb_further->setEnabled(true);
@@ -231,6 +198,12 @@ void MainWindow::on_pb_saveDiagnosis_clicked()
 void MainWindow::closeApp()
 {
     qApp->quit();
+}
+
+void MainWindow::onLwItemTextChanged(qint32 id, QString newText)
+{
+    auto it = m_dictionary->find(id);
+    it.value() = newText;
 }
 
 void MainWindow::_menuClosed()
@@ -249,39 +222,70 @@ void MainWindow::_menuClosed()
         } else {
             auto example = CJsonManager::loadFromFile(openFileName);
             m_example = new SExample(example);
-            // TODO: СЕЙЧАС
-            _prepareSavedDiagnosisFromLoadedFile(&example);
-            _setWordsInLws(&example);
+            _prepareFromExample(&example);
+            _setWordsInLws();
+            if (!m_combinations->isEmpty()) {
+                ui->pb_further->setEnabled(true);
+                _updateDiadnosisCountLabel();
+            }
         }
     } break;
     default:
-        // NOTE: плохой костыль, нужно переделать
+        // TODO: плохой костыль, нужно переделать
         QTimer::singleShot(50, this, &MainWindow::closeApp);
     }
+    m_menu->updateMode();
 }
 
-void MainWindow::_prepareSavedDiagnosisFromLoadedFile(const SExample *example)
+void MainWindow::_prepareFromExample(const SExample *example)
 {
-    // TODO: СЕЙЧАС заполнить m_savedDiagnosis проверив все ли варианты правильно указались (количество, порядок слов)
-    //наверное с комбинациями надо отработать
+    *m_combinations = example->combinations;
 
-    // 1. Получить список всех возможных комбинаций
-    QList<qint32> variationsForWord;
     for (auto word : example->words) {
-        variationsForWord.append(word->availablePositions.count());
-    }
-    qDebug() << variationsForWord;
-    /// Возможный алгоритм:
-    /// Расставить слова по первой вариации -> если для первого слова есть альтернативы, то поставить на вторую позицию
-    /// -> повторять по всем позициям для каждого слова
-    // 2. Для каждой комбинации расставить по LW и сохранить эту комбинацию
-}
-
-void MainWindow::_setWordsInLws(const SExample *example)
-{
-    for (auto word : example->words) {
-        m_listWidgets.at(word->availableDisBlock.first())->addItem(word->text);
+        m_dictionary->insert(word->id, word->text);
     }
 }
 
-// TODO: справка: не нужно изменять слова после сохранения диагнозов - или учесть это
+void MainWindow::_setWordsInLws()
+{
+    auto comb = m_combinations->first();
+    auto separeteds = comb.split(BLOCK_SEPARATOR);
+    for (int i = 0; i < separeteds.count(); i++) {
+        auto keysInBlock = separeteds.at(i).split(SEPARATOR);
+        for (auto key : keysInBlock) {
+            auto keyInt = key.toInt();
+            if (m_dictionary->find(keyInt) == m_dictionary->end())
+                break;
+            auto text = m_dictionary->find(keyInt).value();
+            auto item = new CLWItem(keyInt);
+            item->setText(text);
+            m_listWidgets.at(i)->addItem(item);
+        }
+    }
+}
+
+qint32 MainWindow::_makeMinId()
+{
+    qint32 minId = 0;
+
+    for (int i = 1; true; i++) {
+        bool exist = false;
+        if (m_dictionary->find(i) != m_dictionary->end()) {
+            exist = true;
+        }
+
+        if (!exist) {
+            minId = i;
+            break;
+        }
+    }
+    return minId;
+}
+
+void MainWindow::_updateDiadnosisCountLabel()
+{
+    ui->lb_diagnosisCount->setText("Сохранено вариаций диагноза: " + QString::number(m_combinations->count()));
+}
+
+// NOTE: указать, что изменение слова после сохранения диагноза изменит его также вов сех сохранённых диагнозах
+// NOTE: вроде можно добавлять и удалять слова после сохранения проекта или диагноза

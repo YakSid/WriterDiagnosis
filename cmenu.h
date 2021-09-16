@@ -15,6 +15,7 @@ public:
     explicit CMenu(QWidget *parent = nullptr);
     ~CMenu();
     quint8 getMode() { return m_mode; }
+    void updateMode() { m_mode = 0; }
 
 private slots:
     void on_pb_create_clicked();

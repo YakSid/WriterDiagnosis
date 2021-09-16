@@ -10,8 +10,12 @@ class CLWItem : public QListWidgetItem
 {
 public:
     explicit CLWItem(QListWidget *parent = nullptr);
-    explicit CLWItem(QString content, QListWidget *parent = nullptr);
+    explicit CLWItem(qint32 id, QListWidget *parent = nullptr);
     ~CLWItem();
+    qint32 getId() { return m_id; }
+
+private:
+    qint32 m_id { -1 };
 };
 
 #endif // CLWITEM_H

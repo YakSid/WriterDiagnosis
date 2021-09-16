@@ -12,6 +12,7 @@ public:
     explicit CCustomListWidget(QWidget *parent = nullptr);
 
 signals:
+    void s_textChanged(qint32 itemId, QString newText);
 
 protected:
     void mouseReleaseEvent(QMouseEvent *ev);
@@ -19,6 +20,7 @@ protected:
 
 private:
     void _rightButtonRelease(QPoint pos);
+    void onItemChanged(QListWidgetItem *item);
 };
 
 #endif // CCUSTOMLISTWIDGET_H

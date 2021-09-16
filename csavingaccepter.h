@@ -7,7 +7,6 @@
 //Окно открывается для показа всех возможных получившихся вариантов текстов
 
 // TODO: на потом сделать сохранение в ini размеров окна, которые были заданы перед закрытием
-// TODO: убрать знак вопроса сверху справа, как в kef в kda если можно
 
 namespace Ui {
 class CSavingAccepter;
@@ -18,7 +17,7 @@ class CSavingAccepter : public QDialog
     Q_OBJECT
 
 public:
-    explicit CSavingAccepter(QList<QList<QStringList>> *savedDiagnosis, QWidget *parent = nullptr);
+    explicit CSavingAccepter(QStringList *combinations, QMap<qint32, QString> *dictionary, QWidget *parent = nullptr);
     ~CSavingAccepter();
 
     //! Подготовить экран заполнив его диагнозами
@@ -54,8 +53,11 @@ private:
 private:
     Ui::CSavingAccepter *ui;
 
-    //! Указатель на список сохранённых диагнозов из главного окна
-    QList<QList<QStringList>> *m_savedDiagnosis;
+    //! Указатель на словарь из главного окна
+    QMap<qint32, QString> *m_dictionary { nullptr };
+    //! Указатель на список комбинаций из главного окна
+    QStringList *m_combinations { nullptr };
+    //! Номер текущей показываемой комбинации диагноза
     qint32 m_currentDiagnosisId = 0;
 };
 

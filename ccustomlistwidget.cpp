@@ -1,12 +1,14 @@
 #include "ccustomlistwidget.h"
 #include <QDebug>
 #include <QMenu>
+#include "clwitem.h"
 
 CCustomListWidget::CCustomListWidget(QWidget *parent) : QListWidget(parent)
 {
     setFont(QFont("Times New Roman", 11));
     setDragEnabled(true);
     setDragDropMode(QAbstractItemView::InternalMove);
+    connect(this, &CCustomListWidget::itemChanged, this, &CCustomListWidget::onItemChanged);
 }
 
 void CCustomListWidget::mouseReleaseEvent(QMouseEvent *ev)
@@ -41,4 +43,13 @@ void CCustomListWidget::_rightButtonRelease(QPoint pos)
         delete item;
     }
     delete actionDelete;
+}
+
+void CCustomListWidget::onItemChanged(QListWidgetItem *item)
+{
+    auto clwItem = static_cast<CLWItem *>(item);
+    if (!clwItem)
+        return;
+
+    emit s_textChanged(clwItem->getId(), item->text());
 }

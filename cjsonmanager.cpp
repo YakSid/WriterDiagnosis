@@ -14,6 +14,7 @@ void CJsonManager::saveToFile(QString filename, const SExample *example)
     QJsonArray jWords;
     for (auto word : example->words) {
         auto jWord = new QJsonObject();
+        jWord->insert("id", word->id);
         jWord->insert("text", word->text);
         //! availableDisBlock
         QJsonArray jADB;
@@ -32,6 +33,13 @@ void CJsonManager::saveToFile(QString filename, const SExample *example)
         jWords.append(*jWord);
     }
     jObj.insert("words", jWords);
+    //Список комбинаций в виде строк
+    QJsonArray jCombinations;
+    for (auto combination : example->combinations) {
+        jCombinations.append(combination);
+    }
+    jObj.insert("combinations", jCombinations);
+
     jObjInsideDoc["obj"] = jObj;
     jDoc->setObject(jObjInsideDoc);
 
@@ -62,6 +70,7 @@ SExample CJsonManager::loadFromFile(QString filename)
     for (auto jRefWord : jWords) {
         auto jWord = jRefWord.toObject();
         auto word = new SWord();
+        word->id = jWord["id"].toInt();
         word->text = jWord["text"].toString();
         QJsonArray jADB = jWord["availableDisBlock"].toArray();
         for (auto jRef : jADB) {
@@ -76,6 +85,13 @@ SExample CJsonManager::loadFromFile(QString filename)
         words.append(word);
     }
     example.words = words;
+
+    QStringList combinations;
+    QJsonArray jCombinations = jObj["combinations"].toArray();
+    for (auto jRefComb : jCombinations) {
+        combinations.append(jRefComb.toString());
+    }
+    example.combinations = combinations;
 
     return example;
 }

@@ -31,13 +31,18 @@ private slots:
     void on_pb_further_clicked();
     void on_pb_saveDiagnosis_clicked();
     void closeApp();
+    void onLwItemTextChanged(qint32 id, QString newText);
 
 private:
     void _menuClosed();
-    //! Заполнить m_savedDiagnosis из загруженного файла
-    void _prepareSavedDiagnosisFromLoadedFile(const SExample *example);
+    //! Заполнить словарь и комбинации из загруженного файла
+    void _prepareFromExample(const SExample *example);
     //! Расставить слова по листВиджетам
-    void _setWordsInLws(const SExample *example);
+    void _setWordsInLws();
+    //! Найти минимальное свободное значение id
+    qint32 _makeMinId();
+    //! Обновить строчку, сколько сохранено вариаций диагноза
+    void _updateDiadnosisCountLabel();
 
 private:
     Ui::MainWindow *ui;
@@ -45,10 +50,10 @@ private:
     QList<CCustomListWidget *> m_listWidgets;
     CSavingAccepter *m_savingAccepter { nullptr };
     CMenu *m_menu { nullptr };
-    //! Список сохранённых диагнозов
-    QList<QList<QStringList>> *m_savedDiagnosis { nullptr };
-    //! Весь текущий тест - полный список слов и их возможных позиций к сохранению
+    //! Весь текущий тест - полный список слов, их возможных позиций к сохранению и сохранённых комбинаций
     SExample *m_example { nullptr };
+    QMap<qint32, QString> *m_dictionary { nullptr };
+    QStringList *m_combinations { nullptr };
 };
 
 #endif // MAINWINDOW_H
